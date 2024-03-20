@@ -1,0 +1,19 @@
+.task__item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  gap: 10px;
+  border-bottom: 1px solid #f4f4f4;
+
+  & .task__container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.task__title {
+  &.disabled {
+    text-decoration: line-through;
+  }
+}

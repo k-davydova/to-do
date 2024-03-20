@@ -1,0 +1,18 @@
+.container {
+  height: 100vh;
+  padding: 40px 40px;
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid pink;
+
+  & h3 {
+    word-break: break-all;
+  }
+
+  & textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+  }
+}
