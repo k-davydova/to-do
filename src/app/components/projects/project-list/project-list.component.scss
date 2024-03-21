@@ -1,0 +1,14 @@
+.project-list {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0;
+
+  &.service-project-list {
+
+    border-bottom: 1px solid #f4f4f4;
+
+  }
+
+  .user-project-list {
+  }
+}

@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="input-field">
+    <input
+      type="text"
+      name=""
+      #taskInput
+      placeholder="Add task"
+      (keyup.enter)="onAddTask()"
+    />
+  </div>
+  @for (taskEl of tasks; track taskEl.title; let i = $index) {
+    @if (!taskEl.isChecked) {
+      <app-task-item [task]="taskEl" [index]="i"></app-task-item>
+    }
+  }
+  <br />
+    <p>Completed</p>
+  @for (taskEl of tasks; track taskEl.title; let i = $index) {
+    @if (taskEl.isChecked) {
+      <app-task-item [task]="taskEl" [index]="i"></app-task-item>
+    }
+  }
+  <br />
+</div>

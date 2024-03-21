@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TasksService } from '../../services/tasks.service';
-import { Task } from '../../models/task.model';
+import { TasksService } from '../../../services/tasks.service';
+import { Task } from '../../../models/task.model';
 import { Subscription } from 'rxjs';
 import {
   FormControl,
@@ -9,7 +9,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ShortenPipe } from '../../pipes/shorten.pipe';
+import { ShortenPipe } from '../../../pipes/shorten.pipe';
 
 @Component({
   selector: 'app-task-details',
@@ -61,6 +61,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       title: this.task.title,
       description: newDescription,
       isChecked: this.task.isChecked,
+      project: this.task.project,
     };
 
     this.tasksService.updateDescription(this.index, newTask);

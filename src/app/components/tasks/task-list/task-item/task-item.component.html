@@ -6,6 +6,6 @@
   />
   <div class="task__container">
     <p class="task__title">{{ task.title | shorten : 40 }}</p>
-    <button class="btn btn-delete" (click)="onDelete()">Delete</button>
+    <button class="btn btn-delete" (click)="onDelete($event)">Delete</button>
   </div>
 </a>

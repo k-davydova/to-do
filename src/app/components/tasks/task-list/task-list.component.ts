@@ -1,9 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { TaskItemComponent } from './task-item/task-item.component';
-import { TasksService } from '../../services/tasks.service';
-import { Task } from '../../models/task.model';
+import { TasksService } from '../../../services/tasks.service';
+import { Task } from '../../../models/task.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-task-list',
@@ -27,18 +28,15 @@ export class TaskListComponent implements OnInit {
     this.tasksService.taskChanged.subscribe(
       (tasks: Task[]) => (this.tasks = tasks)
     );
-
-    // this.isCompletedTasks = this.tasks.((task) => task.isChecked)
   }
 
   onAddTask() {
     const taskTitle = this.taskInput?.nativeElement.value;
 
     if (taskTitle.trim() !== '') {
-      const newTask = new Task(taskTitle, '', false);
+      const newTask = new Task(taskTitle, '', false, 'inbox');
 
       this.tasksService.addTask(newTask);
-      // this.tasksService.selectTask(this.tasks.length - 1);
 
       if (this.taskInput) {
         this.taskInput.nativeElement.value = '';
