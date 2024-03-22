@@ -3,8 +3,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
 import { TasksService } from '../../../services/tasks.service';
 import { Task } from '../../../models/task.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { Project } from '../../../models/project.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-task-list',
@@ -17,30 +16,37 @@ export class TaskListComponent implements OnInit {
   @ViewChild('taskInput', { static: false }) taskInput?: ElementRef;
 
   tasks!: Task[];
-  isSelected!: boolean;
-  isCompletedTasks!: boolean;
+  selectedProjectName!: string;
 
   constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
-    this.tasks = this.tasksService.getTasks();
+    // при инициализации
+    this.tasks = this.tasksService.projects[0].tasks;
+    this.selectedProjectName = 'inbox';
 
-    this.tasksService.taskChanged.subscribe(
-      (tasks: Task[]) => (this.tasks = tasks)
-    );
+    this.tasksService.selectedTaskList.subscribe((task) => {
+      this.tasks = task;
+    });
+
+    this.tasksService.selectedProjectName.subscribe((name) => {
+      this.selectedProjectName = name;
+    });
   }
 
   onAddTask() {
-    const taskTitle = this.taskInput?.nativeElement.value;
+    let inputValue = this.taskInput?.nativeElement.value;
 
-    if (taskTitle.trim() !== '') {
-      const newTask = new Task(taskTitle, '', false, 'inbox');
+    const task = {
+      title: inputValue,
+      description: '',
+      isChecked: false,
+    };
 
-      this.tasksService.addTask(newTask);
-
-      if (this.taskInput) {
-        this.taskInput.nativeElement.value = '';
-      }
+    if (this.taskInput) {
+      this.taskInput.nativeElement.value = '';
     }
+
+    this.tasksService.addTask(this.selectedProjectName, task);
   }
 }

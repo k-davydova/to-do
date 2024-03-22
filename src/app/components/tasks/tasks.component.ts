@@ -11,13 +11,5 @@ import { ProjectsComponent } from '../projects/projects.component';
   styleUrl: './tasks.component.scss',
 })
 export class TasksComponent {
-  // selectedTask!: boolean;
 
-  // constructor(private tasksService: TasksService) {}
-
-  // ngOnInit(): void {
-  //   this.tasksService.selectedTask.subscribe((task: Task) => {
-  //     this.selectedTask = !!task;
-  //   });
-  // }
 }

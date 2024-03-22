@@ -5,35 +5,37 @@ import { TasksService } from '../../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { CompletedTaskDirective } from '../../../../directives/completed-task.directive';
 import { ShortenPipe } from '../../../../pipes/shorten.pipe';
+import { SelectedDirective } from '../../../../directives/selected.directive';
 
 @Component({
   selector: 'app-task-item',
   standalone: true,
-  imports: [FormsModule, CommonModule, ShortenPipe, CompletedTaskDirective],
+  imports: [
+    FormsModule,
+    CommonModule,
+    ShortenPipe,
+    CompletedTaskDirective,
+    SelectedDirective
+  ],
   templateUrl: './task-item.component.html',
   styleUrl: './task-item.component.scss',
 })
 export class TaskItemComponent implements OnInit {
   @Input() task!: Task;
   @Input() index!: number;
+  @Input() projectName!: string;
+  isSelected: boolean = false;
 
   constructor(private tasksService: TasksService) {}
 
-  ngOnInit(): void {
-    this.onChecked();
-  }
-
-  onDelete(event: Event) {
-    event.stopPropagation();
-    this.tasksService.deleteTask(this.index);
-  }
+  ngOnInit(): void {}
 
   onSelectTask() {
-    console.log(this.index);
-    this.tasksService.selectTask(this.index);
+    this.isSelected = true;
+    this.tasksService.getSelectedTask(this.task, this.index);
   }
 
-  private onChecked() {
-    this.tasksService.checkedTask();
+  onDelete() {
+    this.tasksService.deleteTask(this.projectName, this.index);
   }
 }

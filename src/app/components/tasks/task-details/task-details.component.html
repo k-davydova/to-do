@@ -1,17 +1,19 @@
-<div class="container" *ngIf="isSelected">
-  <form class="form" [formGroup]="taskForm" (ngSubmit)="onUpdateDescription()">
-    <h3>{{ task.title | shorten : 30 }}</h3>
+<div class="container">
+  @if (isSelected) {
+  <form class="form" (ngSubmit)="onSubmit()" [formGroup]="taskForm">
+    <!-- <h3>{{ task.title }}</h3> -->
+    <input type="text" [value]="task.title" formControlName="title" />
     <textarea
       name="description"
       rows="20"
       placeholder="Add your description here..."
-      [formControlName]="'description'"
-    ></textarea>
-    @if (taskForm.value.description !== task.description) {
-    <button class="btn btn-save">Save</button>
+      formControlName="description"
+      >{{ task.description }}</textarea
+    >
+    @if (task.description !== taskForm.value.description
+    || task.title !== taskForm.value.title) {
+      <button class="btn btn-save">Save</button>
     }
-    <!-- @if (taskForm.touched) {
-    <button class="btn btn-save">Save</button>
-    } -->
   </form>
+  }
 </div>

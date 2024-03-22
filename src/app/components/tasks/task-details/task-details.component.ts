@@ -18,57 +18,53 @@ import { ShortenPipe } from '../../../pipes/shorten.pipe';
   templateUrl: './task-details.component.html',
   styleUrl: './task-details.component.scss',
 })
-export class TaskDetailsComponent implements OnInit, OnDestroy {
-  index: number = -1;
+export class TaskDetailsComponent implements OnInit {
   task!: Task;
-  isSelected!: boolean;
-  selectedTaskSub!: Subscription;
-  indexSub!: Subscription;
-
   taskForm!: FormGroup;
+  index!: number;
+  projectName: string = 'inbox';
+  isSelected!: boolean;
 
   constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
+    this.tasksService.selectedTask.subscribe((task) => {
+      this.task = task;
+
+      this.taskForm.patchValue({
+        title: task.title,
+        description: task.description,
+      });
+    });
+
     this.taskForm = new FormGroup({
+      title: new FormControl(''),
       description: new FormControl(''),
     });
 
-    this.selectedTaskSub = this.tasksService.selectedTask.subscribe(
-      (task: Task) => {
-        this.task = task;
-        this.taskForm.patchValue({
-          description: task.description,
-        });
-      }
-    );
+    this.tasksService.selectedTaskIndex.subscribe((index) => {
+      this.index = index;
+    });
 
-    this.indexSub = this.tasksService.selectedTaskIndex.subscribe(
-      (index: number) => {
-        this.index = index;
-      }
-    );
+    this.tasksService.selectedProjectName.subscribe((projectName) => {
+      this.projectName = projectName;
+    });
 
-    this.tasksService.isTaskSelected.subscribe((selected: boolean) => {
-      this.isSelected = selected;
+    this.tasksService.isTaskSelected.subscribe((isSelected) => {
+      this.isSelected = isSelected;
     });
   }
 
-  onUpdateDescription() {
-    const newDescription = this.taskForm.value.description;
+  onSubmit() {
+    const title = this.taskForm.value.title;
+    const description = this.taskForm.value.description;
 
-    const newTask = {
-      title: this.task.title,
-      description: newDescription,
+    const updatedTask = {
+      title: title,
+      description: description,
       isChecked: this.task.isChecked,
-      project: this.task.project,
     };
 
-    this.tasksService.updateDescription(this.index, newTask);
-  }
-
-  ngOnDestroy(): void {
-    this.selectedTaskSub.unsubscribe();
-    this.indexSub.unsubscribe();
+    this.tasksService.updateTask(updatedTask, this.projectName, this.index);
   }
 }

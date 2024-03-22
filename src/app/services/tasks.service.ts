@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Task } from '../models/task.model';
 import { Subject } from 'rxjs';
 import { Project } from '../models/project.model';
@@ -7,17 +7,14 @@ import { Project } from '../models/project.model';
   providedIn: 'root',
 })
 export class TasksService {
-  taskChanged = new Subject<Task[]>();
-  // taskChanged = new Subject<Project[]>();
+  selectedTaskList = new Subject<Task[]>(); // при клике на проект меняется набор тасков
   selectedTask = new Subject<Task>();
-  isTaskSelected = new Subject<boolean>();
+  selectedProjectName = new Subject<string>();
   selectedTaskIndex = new Subject<number>();
+  isTaskSelected = new Subject<boolean>();
+  updateTaskList = new Subject<Task[]>();
 
   projects: Project[] = [
-    {
-      name: 'all tasks',
-      tasks: [],
-    },
     {
       name: 'inbox',
       tasks: [
@@ -29,9 +26,7 @@ export class TasksService {
     },
     {
       name: 'sport',
-      tasks: [
-        new Task('Заниматься спортом', '', false),
-      ],
+      tasks: [new Task('Заниматься спортом', '', false)],
     },
     {
       name: 'improvement',
@@ -43,53 +38,67 @@ export class TasksService {
     },
   ];
 
-  // projects: { serviceProjects: string[]; userProjects: string[] } = {
-  //   serviceProjects: ['all tasks', 'inbox'],
-  //   userProjects: ['sport', 'chores'],
-  // };
-  // projects: string[] = ['all tasks', 'inbox', 'sport', 'chores'];
-
-  // tasks: Task[] = [
-  //   new Task('Поучить ангуляр', '', true, 'inbox'),
-  //   new Task('Поиграть в иксбокс', '', false, 'inbox'),
-  //   new Task('Помыть жопу', '', false, 'inbox'),
-  //   new Task('Hehe', '', true, 'other tasks'),
-  //   new Task('Купить колу', '', false, 'sport'),
-  //   new Task('Подстричься', '', false, 'sport'),
-  //   new Task('Заниматься спортом', '', false, 'chores'),
-  //   new Task('Выучить английский', '', false, 'chores'),
-  // ];
-
   constructor() {}
 
-  getTasks() {
-    // return this.tasks.slice();
-    return this.projects.slice();
+  getProjects() {
+    let allProjects: string[] = [];
+
+    this.projects.forEach((project) => {
+      allProjects.push(project.name);
+    });
+
+    return allProjects;
   }
 
-  addTask(task: Task) {
-    this.tasks.push(task);
-    this.taskChanged.next(this.tasks.slice());
+  getTasksForProject(selectedProjectName: string) {
+    let tasks: Task[] = [];
+
+    const project = this.projects.find(
+      (project) => selectedProjectName === project.name
+    );
+
+    tasks = project ? project.tasks : [];
+
+    this.selectedTaskList.next(tasks);
+    this.selectedProjectName.next(selectedProjectName);
   }
 
-  checkedTask() {
-    this.isTaskSelected.next(false);
-  }
-
-  deleteTask(index: number) {
-    this.tasks.splice(index, 1);
-    this.taskChanged.next(this.tasks.slice());
-    this.isTaskSelected.next(false);
-  }
-
-  selectTask(index: number) {
-    this.selectedTask.next(this.tasks[index]);
+  getSelectedTask(selectedTask: Task, index: number) {
+    this.selectedTask.next(selectedTask);
     this.selectedTaskIndex.next(index);
     this.isTaskSelected.next(true);
   }
 
-  updateDescription(index: number, newTask: Task) {
-    this.tasks[index].description = newTask.description;
-    this.taskChanged.next(this.tasks.slice());
+  addTask(selectedProjectName: string, newTask: Task) {
+    const project = this.projects.find(
+      (project) => project.name === selectedProjectName
+    );
+
+    if (project) {
+      project?.tasks.push(newTask);
+      this.selectedTaskList.next(project.tasks);
+    }
+  }
+
+  deleteTask(selectedProjectName: string, index: number) {
+    const project = this.projects.find(
+      (project) => project.name === selectedProjectName
+    );
+
+    project!.tasks.splice(index, 1);
+
+    this.selectedTaskList.next(project!.tasks);
+    this.isTaskSelected.next(false);
+  }
+
+  updateTask(updatedTask: Task, selectedProjectName: string, index: number) {
+    const project = this.projects.find(
+      (project) => project.name === selectedProjectName
+    );
+
+    if (project) {
+      project.tasks[index] = updatedTask;
+      this.selectedTaskList.next(project.tasks);
+    }
   }
 }

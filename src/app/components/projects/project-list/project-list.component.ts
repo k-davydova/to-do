@@ -11,9 +11,13 @@ import { CommonModule } from '@angular/common';
   styleUrl: './project-list.component.scss',
 })
 export class ProjectListComponent implements OnInit {
+  projects: string[] = [];
+  inbox!: string;
 
   constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
+    this.inbox = this.tasksService.getProjects()[0];
+    this.projects = this.tasksService.getProjects().slice(1);
   }
 }
