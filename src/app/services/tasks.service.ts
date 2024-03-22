@@ -61,6 +61,7 @@ export class TasksService {
 
     this.selectedTaskList.next(tasks);
     this.selectedProjectName.next(selectedProjectName);
+    this.isTaskSelected.next(false);
   }
 
   getSelectedTask(selectedTask: Task, index: number) {
@@ -91,14 +92,40 @@ export class TasksService {
     this.isTaskSelected.next(false);
   }
 
-  updateTask(updatedTask: Task, selectedProjectName: string, index: number) {
+  updateTask(
+    updatedTask: Task,
+    selectedProjectName: string,
+    index: number,
+    newProjectName: string
+  ) {
     const project = this.projects.find(
       (project) => project.name === selectedProjectName
     );
 
-    if (project) {
-      project.tasks[index] = updatedTask;
-      this.selectedTaskList.next(project.tasks);
+    if (!project) {
+      console.error(`Project ${selectedProjectName} not found.`);
+      return;
     }
+
+    project.tasks[index] = updatedTask;
+
+    if (selectedProjectName !== newProjectName) {
+      const newProject = this.projects.find(
+        (project) => project.name === newProjectName
+      );
+
+      if (!newProject) {
+        console.error(`Project ${newProjectName} not found.`);
+        return;
+      }
+
+      project.tasks.splice(index, 1);
+      newProject.tasks.push(updatedTask);
+
+      this.selectedTaskList.next(newProject.tasks);
+    }
+
+    this.selectedTaskList.next(project.tasks);
   }
+
 }

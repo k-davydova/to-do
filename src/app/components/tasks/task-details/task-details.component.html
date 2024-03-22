@@ -1,19 +1,28 @@
 <div class="container">
   @if (isSelected) {
   <form class="form" (ngSubmit)="onSubmit()" [formGroup]="taskForm">
-    <!-- <h3>{{ task.title }}</h3> -->
-    <input type="text" [value]="task.title" formControlName="title" />
-    <textarea
-      name="description"
-      rows="20"
-      placeholder="Add your description here..."
-      formControlName="description"
-      >{{ task.description }}</textarea
-    >
-    @if (task.description !== taskForm.value.description
-    || task.title !== taskForm.value.title) {
-      <button class="btn btn-save">Save</button>
-    }
+    <div class="form__container">
+      <input type="text" [value]="task.title" formControlName="title" />
+      <textarea
+        name="description"
+        rows="20"
+        placeholder="Add your description here..."
+        formControlName="description"
+        >{{ task.description }}</textarea
+      >
+    </div>
+    <div class="form__container">
+      <select class="project__selector" formControlName="project">
+        @for (project of projects; track project) {
+        <option [value]="project" [selected]="project === projectName">
+          {{ project | uppercase }}
+        </option>
+        }
+      </select>
+      @if (taskForm.dirty) {
+        <button class="btn btn-save">Save</button>
+      }
+    </div>
   </form>
   }
 </div>

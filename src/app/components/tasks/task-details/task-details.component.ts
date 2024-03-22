@@ -1,7 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TasksService } from '../../../services/tasks.service';
 import { Task } from '../../../models/task.model';
-import { Subscription } from 'rxjs';
 import {
   FormControl,
   FormGroup,
@@ -24,22 +23,27 @@ export class TaskDetailsComponent implements OnInit {
   index!: number;
   projectName: string = 'inbox';
   isSelected!: boolean;
+  projects!: string[];
 
   constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
+    this.projects = this.tasksService.getProjects();
+
     this.tasksService.selectedTask.subscribe((task) => {
       this.task = task;
 
       this.taskForm.patchValue({
         title: task.title,
         description: task.description,
+        project: this.projectName,
       });
     });
 
     this.taskForm = new FormGroup({
       title: new FormControl(''),
       description: new FormControl(''),
+      project: new FormControl([]),
     });
 
     this.tasksService.selectedTaskIndex.subscribe((index) => {
@@ -58,6 +62,7 @@ export class TaskDetailsComponent implements OnInit {
   onSubmit() {
     const title = this.taskForm.value.title;
     const description = this.taskForm.value.description;
+    const project = this.taskForm.value.project;
 
     const updatedTask = {
       title: title,
@@ -65,6 +70,11 @@ export class TaskDetailsComponent implements OnInit {
       isChecked: this.task.isChecked,
     };
 
-    this.tasksService.updateTask(updatedTask, this.projectName, this.index);
+    this.tasksService.updateTask(
+      updatedTask,
+      this.projectName,
+      this.index,
+      project
+    );
   }
 }
