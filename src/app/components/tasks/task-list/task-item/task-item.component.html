@@ -1,0 +1,16 @@
+<a
+  class="task__item"
+  (click)="onSelectTask()"
+  [appCompleted]="task.isChecked"
+  [appHighlight]="'task'"
+>
+  <input
+    type="checkbox"
+    [(ngModel)]="task.isChecked"
+    (ngModelChange)="onCheckedTask()"
+  />
+  <div class="task__container">
+    <p class="task__title">{{ task.title | shorten : 40 }}</p>
+    <button class="btn btn-delete" (click)="onDelete()"></button>
+  </div>
+</a>
