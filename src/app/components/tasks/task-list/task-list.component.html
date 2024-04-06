@@ -15,23 +15,27 @@
       />
     </div>
   </form>
-  @if (tasks.length > 0) { @for (taskEl of tasks; track taskEl.title; let i =
-  $index) { @if (!taskEl.isChecked) {
-  <app-task-item
-    [task]="taskEl"
-    [index]="i"
-    [projectName]="selectedProjectName"
-  ></app-task-item>
-  } }
+  @if (tasks.length > 0) {
+    @for (taskEl of tasks; track taskEl.title; let i = $index) {
+      @if (!taskEl.isChecked) {
+        <app-task-item
+          [task]="taskEl"
+          [index]="i"
+          [projectName]="selectedProjectName"
+        ></app-task-item>
+      }
+    }
   <br />
-  @for (taskEl of tasks; track taskEl.title; let i = $index) { @if
-  (taskEl.isChecked) {
-  <app-task-item
-    [task]="taskEl"
-    [index]="i"
-    [projectName]="selectedProjectName"
-  ></app-task-item>
-  } } } @else {
-  <p>Add your first task!</p>
+  @for (taskEl of tasks; track taskEl.title; let i = $index) {
+    @if (taskEl.isChecked) {
+      <app-task-item
+        [task]="taskEl"
+        [index]="i"
+        [projectName]="selectedProjectName"
+      ></app-task-item>
+    }
+  }
+  } @else {
+    <p>Add your first task!</p>
   }
 </div>

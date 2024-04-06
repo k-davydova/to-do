@@ -7,13 +7,13 @@ import { Project } from '../models/project.model';
   providedIn: 'root',
 })
 export class TasksService {
-  selectedTaskList = new Subject<Task[]>();
-  selectedTask = new Subject<Task>();
-  selectedProjectName = new Subject<string>();
-  selectedTaskIndex = new Subject<number>();
-  isTaskSelected = new Subject<boolean>();
-  updateTaskList = new Subject<Task[]>();
-  updateProjectList = new Subject<Project[]>();
+  selectedTaskList$ = new Subject<Task[]>();
+  selectedTask$ = new Subject<Task>();
+  selectedProjectName$ = new Subject<string>();
+  selectedTaskIndex$ = new Subject<number>();
+  isTaskSelected$ = new Subject<boolean>();
+  updateTaskList$ = new Subject<Task[]>();
+  updateProjectList$ = new Subject<Project[]>();
 
   projects: Project[] = [];
 
@@ -21,42 +21,35 @@ export class TasksService {
     this.getProjectsFromLocalStorage();
   }
 
-  getProjects() {
-    let allProjects: string[] = [];
-
-    this.projects.forEach((project) => {
-      allProjects.push(project.name);
-    });
-
-    return allProjects;
+  getProjects(): string[] {
+    return this.projects.map((project) => project.name);
   }
 
-  addProject(projectName: string) {
-    this.projects.push({
+  addProject(projectName: string): void {
+    const newProject: Project = {
       name: projectName,
       tasks: [],
-    });
+    };
 
-    this.updateProjectList.next(this.projects);
+    this.projects = [...this.projects, newProject];
+
+    this.updateProjectList$.next(this.projects);
   }
 
-  deleteProject(index: number) {
+  deleteProject(index: number): void {
     this.projects.splice(index, 1);
 
-    this.updateProjectList.next(this.projects);
+    this.updateProjectList$.next(this.projects);
     this.getTasksForProject('inbox');
 
     this.saveToLocalStorage();
   }
 
-  getTasksForProject(selectedProjectName: string) {
-    let tasks: Task[] = [];
-
+  getTasksForProject(selectedProjectName: string): Task[] {
     const project = this.projects.find(
-      (project) => selectedProjectName === project.name
+      (project) => project.name === selectedProjectName
     );
-
-    tasks = project ? project.tasks : [];
+    const tasks = project ? project.tasks : [];
 
     if (tasks.length > 0) {
       localStorage.setItem('selectedTasks', JSON.stringify(tasks));
@@ -64,51 +57,57 @@ export class TasksService {
 
     localStorage.setItem('selectedProjectName', selectedProjectName);
 
-    this.selectedTaskList.next(tasks);
-    this.selectedProjectName.next(selectedProjectName);
-    this.isTaskSelected.next(false);
+    this.selectedTaskList$.next(tasks);
+    this.selectedProjectName$.next(selectedProjectName);
+    this.isTaskSelected$.next(false);
 
     return tasks;
   }
 
-  getSelectedTask(selectedTask: Task, index: number) {
-    this.selectedTask.next(selectedTask);
-    this.selectedTaskIndex.next(index);
-    this.isTaskSelected.next(true);
+  getSelectedTask(selectedTask: Task, index: number): void {
+    this.selectedTask$.next(selectedTask);
+    this.selectedTaskIndex$.next(index);
+    this.isTaskSelected$.next(true);
   }
 
-  addTask(selectedProjectName: string, newTask: Task) {
-    console.log(newTask);
+  addTask(selectedProjectName: string, newTask: Task): void {
     const project = this.projects.find(
       (project) => project.name === selectedProjectName
     );
 
     if (project) {
       project?.tasks.push(newTask);
-      this.selectedTaskList.next(project.tasks);
+      this.selectedTaskList$.next(project.tasks);
     }
 
-    this.selectedTask.next(newTask);
-    this.isTaskSelected.next(true);
+    this.selectedTask$.next(newTask);
+    this.isTaskSelected$.next(true);
     this.saveToLocalStorage();
   }
 
-  checkedTask() {
-    this.isTaskSelected.next(false);
+  checkedTask(): void {
+    this.isTaskSelected$.next(false);
     this.saveToLocalStorage();
   }
 
-  deleteTask(selectedProjectName: string, index: number) {
-    const project = this.projects.find(
+  deleteTask(selectedProjectName: string, index: number): void {
+    const projectIndex = this.projects.findIndex(
       (project) => project.name === selectedProjectName
     );
 
-    project!.tasks.splice(index, 1);
+    if (projectIndex === -1) {
+      console.error(`Project ${selectedProjectName} not found.`);
+      return;
+    }
 
+    const updatedProjects = [...this.projects];
+    updatedProjects[projectIndex].tasks.splice(index, 1);
+
+    this.projects = updatedProjects;
+
+    this.selectedTaskList$.next(updatedProjects[projectIndex].tasks);
+    this.isTaskSelected$.next(false);
     this.saveToLocalStorage();
-
-    this.selectedTaskList.next(project!.tasks);
-    this.isTaskSelected.next(false);
   }
 
   updateTask(
@@ -116,37 +115,40 @@ export class TasksService {
     selectedProjectName: string,
     index: number,
     newProjectName: string
-  ) {
-    const project = this.projects.find(
+  ): void {
+    const projectIndex = this.projects.findIndex(
       (project) => project.name === selectedProjectName
     );
 
-    if (!project) {
+    if (projectIndex === -1) {
       console.error(`Project ${selectedProjectName} not found.`);
       return;
     }
 
-    project.tasks[index] = updatedTask;
+    const updatedProjects = this.projects;
+    updatedProjects[projectIndex].tasks[index] = updatedTask;
 
     if (selectedProjectName !== newProjectName) {
-      const newProject = this.projects.find(
+      const newProjectIndex = this.projects.findIndex(
         (project) => project.name === newProjectName
       );
 
-      if (!newProject) {
-        console.error(`Project ${newProjectName} not found.`);
+      if (newProjectIndex === -1) {
+        console.error(`Project ${selectedProjectName} not found.`);
         return;
       }
 
-      project.tasks.splice(index, 1);
-      newProject.tasks.push(updatedTask);
+      updatedProjects[newProjectIndex].tasks.push(updatedTask);
+      updatedProjects[projectIndex].tasks.splice(index, 1);
 
-      this.selectedTaskList.next(newProject.tasks);
+      this.selectedTaskList$.next(updatedProjects[newProjectIndex].tasks);
+      this.isTaskSelected$.next(false);
     }
 
-    this.saveToLocalStorage();
+    this.projects = updatedProjects;
+    this.selectedTaskList$.next(updatedProjects[projectIndex].tasks);
 
-    this.selectedTaskList.next(project.tasks);
+    this.saveToLocalStorage();
   }
 
   getProjectsFromLocalStorage() {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TasksService } from '../../../services/tasks.service';
 import { Task } from '../../../models/task.model';
 import {
@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ShortenPipe } from '../../../pipes/shorten.pipe';
 import { StartTaskDetailsComponent } from '../start-task-details/start-task-details.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-task-details',
@@ -19,12 +20,12 @@ import { StartTaskDetailsComponent } from '../start-task-details/start-task-deta
     ShortenPipe,
     FormsModule,
     ReactiveFormsModule,
-    StartTaskDetailsComponent
+    StartTaskDetailsComponent,
   ],
   templateUrl: './task-details.component.html',
   styleUrl: './task-details.component.scss',
 })
-export class TaskDetailsComponent implements OnInit {
+export class TaskDetailsComponent implements OnInit, OnDestroy {
   task!: Task;
   taskForm!: FormGroup;
   index!: number;
@@ -33,14 +34,23 @@ export class TaskDetailsComponent implements OnInit {
   projects!: string[];
   isSent: boolean = false;
 
-  constructor(private tasksService: TasksService) {
+  taskSub!: Subscription;
+  indexSub!: Subscription;
+  projectNameSub!: Subscription;
+  isSelectedSub!: Subscription;
 
-  }
+  constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
     this.projects = this.tasksService.getProjects();
 
-    this.tasksService.selectedTask.subscribe((task) => {
+    this.taskForm = new FormGroup({
+      title: new FormControl(''),
+      description: new FormControl(''),
+      project: new FormControl([]),
+    });
+
+    this.taskSub = this.tasksService.selectedTask$.subscribe((task) => {
       this.task = task;
 
       this.taskForm.patchValue({
@@ -50,23 +60,21 @@ export class TaskDetailsComponent implements OnInit {
       });
     });
 
-    this.taskForm = new FormGroup({
-      title: new FormControl(''),
-      description: new FormControl(''),
-      project: new FormControl([]),
-    });
-
-    this.tasksService.selectedTaskIndex.subscribe((index) => {
+    this.indexSub = this.tasksService.selectedTaskIndex$.subscribe((index) => {
       this.index = index;
     });
 
-    this.tasksService.selectedProjectName.subscribe((projectName) => {
-      this.projectName = projectName;
-    });
+    this.projectNameSub = this.tasksService.selectedProjectName$.subscribe(
+      (projectName) => {
+        this.projectName = projectName;
+      }
+    );
 
-    this.tasksService.isTaskSelected.subscribe((isSelected) => {
-      this.isSelected = isSelected;
-    });
+    this.isSelectedSub = this.tasksService.isTaskSelected$.subscribe(
+      (isSelected) => {
+        this.isSelected = isSelected;
+      }
+    );
   }
 
   onSubmit() {
@@ -89,5 +97,12 @@ export class TaskDetailsComponent implements OnInit {
 
     this.isSent = true;
     setTimeout(() => (this.isSent = false), 4000);
+  }
+
+  ngOnDestroy(): void {
+    this.taskSub.unsubscribe();
+    this.indexSub.unsubscribe();
+    this.projectNameSub.unsubscribe();
+    this.isSelectedSub.unsubscribe();
   }
 }

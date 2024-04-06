@@ -16,14 +16,6 @@ import { StartTaskDetailsComponent } from './start-task-details/start-task-detai
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.scss',
 })
-export class TasksComponent implements OnInit {
-  // isSelected!: boolean;
+export class TasksComponent {
 
-  constructor(private tasksService: TasksService) {}
-
-  ngOnInit(): void {
-    // this.tasksService.isTaskSelected.subscribe((isSelected) => {
-    //   this.isSelected = isSelected;
-    // });
-  }
 }

@@ -1,8 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ProjectItemComponent } from './project-item/project-item.component';
 import { TasksService } from '../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-project-list',
@@ -11,19 +12,21 @@ import { FormsModule, NgForm } from '@angular/forms';
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss',
 })
-export class ProjectListComponent implements OnInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
   @ViewChild('form', { static: false }) projectForm!: NgForm;
 
   projects: string[] = [];
   newProject!: string;
   isInputValue: boolean = false;
 
+  projectsSub!: Subscription;
+
   constructor(private tasksService: TasksService) {}
 
   ngOnInit(): void {
     this.projects = this.tasksService.getProjects();
 
-    this.tasksService.updateProjectList.subscribe(() => {
+    this.projectsSub = this.tasksService.updateProjectList$.subscribe(() => {
       this.projects = this.tasksService.getProjects();
     });
   }
@@ -39,5 +42,9 @@ export class ProjectListComponent implements OnInit {
     }
 
     this.projectForm.reset();
+  }
+
+  ngOnDestroy(): void {
+    this.projectsSub.unsubscribe();
   }
 }

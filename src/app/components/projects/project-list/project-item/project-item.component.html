@@ -1,4 +1,7 @@
-<a class="project__item" (click)="onSelectProject()" [appHighlight]="'project'">
+<a
+  class="project__item"
+  (click)="onSelectProject()"
+>
   <p>{{ projectName | uppercase | shorten : 8 }}</p>
   @if (projectName !== 'inbox') {
   <button class="btn btn-delete" (click)="onDelete($event)"></button>
