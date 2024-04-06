@@ -8,6 +8,4 @@ import { ProjectListComponent } from './project-list/project-list.component';
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss',
 })
-export class ProjectsComponent {
-
-}
+export class ProjectsComponent {}

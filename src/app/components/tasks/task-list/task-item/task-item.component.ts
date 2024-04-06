@@ -5,7 +5,6 @@ import { TasksService } from '../../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { CompletedTaskDirective } from '../../../../directives/completed-task.directive';
 import { ShortenPipe } from '../../../../pipes/shorten.pipe';
-import { HighlightDirective } from '../../../../directives/highlight.directive';
 
 @Component({
   selector: 'app-task-item',
@@ -14,20 +13,17 @@ import { HighlightDirective } from '../../../../directives/highlight.directive';
     FormsModule,
     CommonModule,
     ShortenPipe,
-    CompletedTaskDirective,
-    HighlightDirective
+    CompletedTaskDirective
   ],
   templateUrl: './task-item.component.html',
   styleUrl: './task-item.component.scss',
 })
-export class TaskItemComponent implements OnInit {
+export class TaskItemComponent {
   @Input() task!: Task;
   @Input() index!: number;
   @Input() projectName!: string;
 
   constructor(private tasksService: TasksService) {}
-
-  ngOnInit(): void {}
 
   onCheckedTask() {
     this.tasksService.checkedTask();
