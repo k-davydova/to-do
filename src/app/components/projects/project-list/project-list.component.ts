@@ -8,7 +8,11 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [ProjectItemComponent, CommonModule, FormsModule],
+  imports: [
+    ProjectItemComponent,
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss',
 })

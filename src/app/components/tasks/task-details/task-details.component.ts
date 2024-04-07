@@ -29,7 +29,7 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
   task!: Task;
   taskForm!: FormGroup;
   index!: number;
-  projectName: string = 'inbox';
+  projectName!: string;
   isSelected!: boolean;
   projects!: string[];
   isSent: boolean = false;
@@ -43,6 +43,9 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.projects = this.tasksService.getProjects();
+
+    const storedProjectName = localStorage.getItem('selectedProjectName')
+    this.projectName = storedProjectName ? storedProjectName : 'inbox'
 
     this.taskForm = new FormGroup({
       title: new FormControl(''),
@@ -64,17 +67,13 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
       this.index = index;
     });
 
-    this.projectNameSub = this.tasksService.selectedProjectName$.subscribe(
-      (projectName) => {
-        this.projectName = projectName;
-      }
-    );
+    this.projectNameSub = this.tasksService.selectedProjectName$.subscribe((projectName) => {
+      this.projectName = projectName;
+    });
 
-    this.isSelectedSub = this.tasksService.isTaskSelected$.subscribe(
-      (isSelected) => {
-        this.isSelected = isSelected;
-      }
-    );
+    this.isSelectedSub = this.tasksService.isTaskSelected$.subscribe((isSelected) => {
+      this.isSelected = isSelected;
+    });
   }
 
   onSubmit() {

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { TasksComponent } from './components/tasks/tasks.component';
 import { TaskDetailsComponent } from './components/tasks/task-details/task-details.component';
 
@@ -7,7 +6,6 @@ import { TaskDetailsComponent } from './components/tasks/task-details/task-detai
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
     TasksComponent,
     TaskDetailsComponent,
   ],
