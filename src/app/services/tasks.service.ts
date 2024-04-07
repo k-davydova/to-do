@@ -184,10 +184,9 @@ export class TasksService {
               'All changes are recorded in localStorage and saved when the page is reloaded',
               true
             ),
-            new Task("Adding personal project's folders", '', false),
+            new Task("Adding personal project's folders", '', true),
             new Task('Tags', '', false),
             new Task('Change design', '', false),
-            new Task('Add animations', '', false),
           ],
         },
         {
