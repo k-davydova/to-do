@@ -68,6 +68,8 @@ export class TasksService {
     this.selectedTask$.next(selectedTask);
     this.selectedTaskIndex$.next(index);
     this.isTaskSelected$.next(true);
+
+    localStorage.setItem('selectedTask', JSON.stringify(selectedTask));
   }
 
   addTask(selectedProjectName: string, newTask: Task): void {
@@ -115,40 +117,37 @@ export class TasksService {
     selectedProjectName: string,
     index: number,
     newProjectName: string
-  ): void {
-    const projectIndex = this.projects.findIndex(
+  ) {
+    const project = this.projects.find(
       (project) => project.name === selectedProjectName
     );
 
-    if (projectIndex === -1) {
+    if (!project) {
       console.error(`Project ${selectedProjectName} not found.`);
       return;
     }
 
-    const updatedProjects = this.projects;
-    updatedProjects[projectIndex].tasks[index] = updatedTask;
+    project.tasks[index] = updatedTask;
 
     if (selectedProjectName !== newProjectName) {
-      const newProjectIndex = this.projects.findIndex(
+      const newProject = this.projects.find(
         (project) => project.name === newProjectName
       );
 
-      if (newProjectIndex === -1) {
-        console.error(`Project ${selectedProjectName} not found.`);
+      if (!newProject) {
+        console.error(`Project ${newProjectName} not found.`);
         return;
       }
 
-      updatedProjects[newProjectIndex].tasks.push(updatedTask);
-      updatedProjects[projectIndex].tasks.splice(index, 1);
+      project.tasks.splice(index, 1);
+      newProject.tasks.push(updatedTask);
 
-      this.selectedTaskList$.next(updatedProjects[newProjectIndex].tasks);
-      this.isTaskSelected$.next(false);
+      this.selectedTaskList$.next(newProject.tasks);
     }
 
-    this.projects = updatedProjects;
-    this.selectedTaskList$.next(updatedProjects[projectIndex].tasks);
-
     this.saveToLocalStorage();
+
+    this.selectedTaskList$.next(project.tasks);
   }
 
   getProjectsFromLocalStorage() {
@@ -166,7 +165,7 @@ export class TasksService {
           ],
         },
         {
-          name: 'To-do',
+          name: 'to-do',
           tasks: [
             new Task('Adding / removing tasks', '', true),
             new Task('Changing title and description', '', true),

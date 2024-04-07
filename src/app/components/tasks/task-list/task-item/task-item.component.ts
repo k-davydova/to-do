@@ -5,6 +5,7 @@ import { TasksService } from '../../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { CompletedTaskDirective } from '../../../../directives/completed-task.directive';
 import { ShortenPipe } from '../../../../pipes/shorten.pipe';
+import { LinkPipe } from '../../../../pipes/link.pipe';
 
 @Component({
   selector: 'app-task-item',
@@ -13,7 +14,8 @@ import { ShortenPipe } from '../../../../pipes/shorten.pipe';
     FormsModule,
     CommonModule,
     ShortenPipe,
-    CompletedTaskDirective
+    CompletedTaskDirective,
+    LinkPipe
   ],
   templateUrl: './task-item.component.html',
   styleUrl: './task-item.component.scss',
@@ -33,7 +35,8 @@ export class TaskItemComponent {
     this.tasksService.getSelectedTask(this.task, this.index);
   }
 
-  onDelete() {
+  onDelete(event: Event) {
+    event.preventDefault();
     this.tasksService.deleteTask(this.projectName, this.index);
   }
 

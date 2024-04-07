@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { TaskListComponent } from './task-list/task-list.component';
 import { TaskDetailsComponent } from './task-details/task-details.component';
 import { ProjectsComponent } from '../projects/projects.component';
-import { TasksService } from '../../services/tasks.service';
 import { StartTaskDetailsComponent } from './start-task-details/start-task-details.component';
 @Component({
   selector: 'app-tasks',
@@ -16,6 +15,4 @@ import { StartTaskDetailsComponent } from './start-task-details/start-task-detai
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.scss',
 })
-export class TasksComponent {
-
-}
+export class TasksComponent {}
