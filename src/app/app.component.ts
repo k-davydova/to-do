@@ -1,15 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
-import { TasksComponent } from './tasks/tasks.component';
-import { TaskDetailsComponent } from './tasks/task-details/task-details.component';
+import { TasksComponent } from './components/tasks/tasks.component';
+import { TaskDetailsComponent } from './components/tasks/task-details/task-details.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
-    NavBarComponent,
     TasksComponent,
     TaskDetailsComponent,
   ],

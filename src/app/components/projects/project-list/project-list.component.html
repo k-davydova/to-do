@@ -1,0 +1,21 @@
+<div class="container">
+  <form (ngSubmit)="onAddProject()" #form="ngForm">
+    <div
+      class="input-field"
+      [ngClass]="{ ' ng-invalid ng-touched': isInputValue }"
+    >
+      <input
+        type="text"
+        placeholder="Project name"
+        name="newProject"
+        [(ngModel)]="newProject"
+        required
+      />
+    </div>
+    <button class="btn btn-add" type="submit">Add project</button>
+  </form>
+  <br />
+  @for (project of projects; track project; let i = $index) {
+    <app-project-item [projectName]="project" [index]="i"></app-project-item>
+  }
+</div>

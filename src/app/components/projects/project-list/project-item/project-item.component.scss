@@ -1,0 +1,16 @@
+.project__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    .btn-delete {
+      display: inline-block;
+    }
+  }
+
+}

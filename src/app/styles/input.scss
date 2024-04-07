@@ -1,0 +1,23 @@
+.input-field {
+  margin-bottom: 20px;
+  height: 36px;
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  border: 2px solid #f4f4f4;
+
+  &.ng-invalid.ng-touched {
+    border: 1px solid $primary__color;
+  }
+
+  & input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: transparent;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

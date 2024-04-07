@@ -1,0 +1,41 @@
+<div class="container">
+  <h3>{{ selectedProjectName | uppercase }}</h3>
+  <form (ngSubmit.keyup.enter)="onAddTask()" #form="ngForm">
+    <div
+      class="input-field"
+      [ngClass]="{ ' ng-invalid ng-touched': isInputValue }"
+    >
+      <input
+        type="text"
+        placeholder="Quickly add a task"
+        name="newTask"
+        [(ngModel)]="newTask"
+        required
+        (keyup.enter)="onAddTask()"
+      />
+    </div>
+  </form>
+  @if (tasks.length > 0) {
+    @for (taskEl of tasks; track taskEl.title; let i = $index) {
+      @if (!taskEl.isChecked) {
+        <app-task-item
+          [task]="taskEl"
+          [index]="i"
+          [projectName]="selectedProjectName"
+        ></app-task-item>
+      }
+    }
+  <br />
+  @for (taskEl of tasks; track taskEl.title; let i = $index) {
+    @if (taskEl.isChecked) {
+      <app-task-item
+        [task]="taskEl"
+        [index]="i"
+        [projectName]="selectedProjectName"
+      ></app-task-item>
+    }
+  }
+  } @else {
+    <p>Add your first task!</p>
+  }
+</div>

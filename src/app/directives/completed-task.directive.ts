@@ -1,35 +1,20 @@
-import {
-  Directive,
-  ElementRef,
-  HostBinding,
-  HostListener,
-  Input,
-  OnInit,
-} from '@angular/core';
+import { Directive, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
 
 @Directive({
-  selector: '[appCompletedTask]',
+  selector: '[appCompleted]',
   standalone: true,
 })
 export class CompletedTaskDirective implements OnInit {
-  @Input('appCompletedTask') isChecked!: boolean;
-  // @HostBinding('class.disabled') isDisabled = false;
+  @Input('appCompleted') isChecked!: boolean;
 
-  private paragraphEl!: HTMLElement;
-
-  constructor(private elRef: ElementRef) {
-    // this.taskTitle = el
-  }
+  constructor(private elRef: ElementRef, private renderer: Renderer2) {}
 
   ngOnInit(): void {
-    this.toggleDisabledClass()
-  }
-
-  private toggleDisabledClass() {
-    this.paragraphEl = this.elRef.nativeElement.querySelector('.task__title');
-
-    if (this.paragraphEl && this.isChecked) {
-      this.paragraphEl.classList.add('disabled');
+    if (this.isChecked) {
+      this.renderer.addClass(
+        this.elRef.nativeElement.querySelector('.task__title'),
+        'disabled'
+      );
     }
   }
 }

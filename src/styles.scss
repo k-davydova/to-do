@@ -1,66 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
-html,
-body,
-div,
-span,
-p,
-app-root {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  // font-family: "Sono", monospace;
-  // font-family: "Ubuntu", sans-serif;
-  font-family: "Inter", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-  font-size: 18px;
-}
-
-// body {
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   height: 100vh;
-//   margin: 0;
-// }
-
-input,
-textarea {
-  font-family: "Sono", monospace;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 16px;
-}
-
-a {
-  text-decoration: none;
-  // cursor: pointer;
-}
-
-.btn {
-  padding: 6px 8px;
-  font-family: "Sono", monospace;
-  font-style: normal;
-  font-size: 12px;
-  background-color: #f4f4f4;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-save {
-  align-self: flex-start;
-  background-color: cornflowerblue;
-  color: #FFFFFF;
-}
+@import './app/styles/buttons.scss';
+@import './app/styles/utilities.scss';
+@import './app/styles/modifiers.scss';
+@import './app/styles/layout.scss';
+@import './app/styles/input.scss';
+@import './app/styles/form.scss';
