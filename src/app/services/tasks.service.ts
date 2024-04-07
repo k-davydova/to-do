@@ -7,6 +7,7 @@ import { Project } from '../models/project.model';
   providedIn: 'root',
 })
 export class TasksService {
+  projectList$ = new Subject<string[]>();
   selectedTaskList$ = new Subject<Task[]>();
   selectedTask$ = new Subject<Task>();
   selectedProjectName$ = new Subject<string>();
@@ -22,7 +23,11 @@ export class TasksService {
   }
 
   getProjects(): string[] {
-    return this.projects.map((project) => project.name);
+    const projects = this.projects.map((project) => project.name);
+
+    this.projectList$.next(projects);
+
+    return projects;
   }
 
   addProject(projectName: string): void {
