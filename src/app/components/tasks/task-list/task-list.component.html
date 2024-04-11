@@ -1,6 +1,6 @@
 <div class="container">
   <h3>{{ selectedProjectName | uppercase }}</h3>
-  <form (ngSubmit.keyup.enter)="onAddTask()" #form="ngForm">
+  <form (ngSubmit.keyup.enter)="onAddTask()">
     <div
       class="input-field"
       [ngClass]="{ ' ng-invalid ng-touched': isInputValue }"
@@ -8,9 +8,7 @@
       <input
         type="text"
         placeholder="Quickly add a task"
-        name="newTask"
-        [(ngModel)]="newTask"
-        required
+        [formControl]="taskControl"
         (keyup.enter)="onAddTask()"
       />
     </div>
@@ -22,6 +20,9 @@
           [task]="taskEl"
           [index]="i"
           [projectName]="selectedProjectName"
+          (checkedTask)="onCheckedTask()"
+          (selectTask)="onSelectTask($event)"
+          (deleteTask)="onDeleteTask($event)"
         ></app-task-item>
       }
     }
@@ -32,6 +33,8 @@
         [task]="taskEl"
         [index]="i"
         [projectName]="selectedProjectName"
+        (selectTask)="onSelectTask($event)"
+        (deleteTask)="onDeleteTask($event)"
       ></app-task-item>
     }
   }

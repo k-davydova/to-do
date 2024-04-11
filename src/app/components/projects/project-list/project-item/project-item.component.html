@@ -1,9 +1,6 @@
-<a
-  class="project__item"
-  (click)="onSelectProject()"
->
-  <p>{{ projectName | uppercase | shorten : 8 }}</p>
-  @if (projectName !== 'inbox') {
-    <button button class="btn btn-delete" (click)="onDelete($event)"></button>
+<a class="project__item" (click)="onSelectProject()">
+  <p>{{ project.name| uppercase | shorten : 8 }}</p>
+  @if (project.isRemovable) {
+    <button class="btn btn-delete" (click)="onDelete($event)"></button>
   }
 </a>

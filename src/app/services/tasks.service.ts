@@ -1,7 +1,9 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Task } from '../models/task.model';
 import { Subject } from 'rxjs';
 import { Project } from '../models/project.model';
+import { DataService } from './data.service';
+import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,31 +15,45 @@ export class TasksService {
   selectedProjectName$ = new Subject<string>();
   selectedTaskIndex$ = new Subject<number>();
   isTaskSelected$ = new Subject<boolean>();
-  updateTaskList$ = new Subject<Task[]>();
   updateProjectList$ = new Subject<Project[]>();
 
   projects: Project[] = [];
 
-  constructor() {
+  constructor(
+    private dataService: DataService,
+    private localStorageService: LocalStorageService
+  ) {
     this.getProjectsFromLocalStorage();
   }
 
-  getProjects(): string[] {
-    const projects = this.projects.map((project) => project.name);
+  getProjectsFromLocalStorage() {
+    this.projects = this.localStorageService.getFromLocalStorage();
 
+    if (this.projects.length === 0) {
+      this.projects = this.dataService.PROJECTS;
+      this.saveToLocalStorage();
+    }
+  }
+
+  saveToLocalStorage() {
+    this.localStorageService.saveToLocalStorage(this.projects);
+  }
+
+  getProjects(): Project[] {
+    const projects = this.projects.map((project) => project.name);
     this.projectList$.next(projects);
 
-    return projects;
+    return this.projects;
   }
 
   addProject(projectName: string): void {
     const newProject: Project = {
       name: projectName,
       tasks: [],
+      isRemovable: true,
     };
 
     this.projects = [...this.projects, newProject];
-
     this.updateProjectList$.next(this.projects);
   }
 
@@ -103,7 +119,6 @@ export class TasksService {
     );
 
     if (projectIndex === -1) {
-      console.error(`Project ${selectedProjectName} not found.`);
       return;
     }
 
@@ -128,7 +143,6 @@ export class TasksService {
     );
 
     if (!project) {
-      console.error(`Project ${selectedProjectName} not found.`);
       return;
     }
 
@@ -140,7 +154,6 @@ export class TasksService {
       );
 
       if (!newProject) {
-        console.error(`Project ${newProjectName} not found.`);
         return;
       }
 
@@ -153,64 +166,5 @@ export class TasksService {
     this.saveToLocalStorage();
 
     this.selectedTaskList$.next(project.tasks);
-  }
-
-  getProjectsFromLocalStorage() {
-    const storedProjects = localStorage.getItem('projects');
-
-    if (storedProjects) {
-      this.projects = JSON.parse(storedProjects);
-    } else {
-      this.projects = [
-        {
-          name: 'inbox',
-          tasks: [
-            new Task('Watch reels', '', true),
-            new Task('Make to-do tracker', '', false),
-          ],
-        },
-        {
-          name: 'to-do',
-          tasks: [
-            new Task('Adding / removing tasks', '', true),
-            new Task('Changing title and description', '', true),
-            new Task(
-              'Show different tasks',
-              'The set of tasks depends on the selected project',
-              true
-            ),
-            new Task(
-              'Moving tasks',
-              'All tasks can be moved between projects',
-              true
-            ),
-            new Task(
-              'Saving to localStorage',
-              'All changes are recorded in localStorage and saved when the page is reloaded',
-              true
-            ),
-            new Task("Adding personal project's folders", '', true),
-            new Task('Tags', '', false),
-            new Task('Change design', '', false),
-          ],
-        },
-        {
-          name: 'other',
-          tasks: [
-            new Task('Play xbox', '', false),
-            new Task('Learn english', '', false),
-            new Task('Read a book', '', true),
-          ],
-        },
-      ];
-
-      this.saveToLocalStorage();
-    }
-  }
-
-  saveToLocalStorage() {
-    const data = JSON.stringify(this.projects);
-
-    localStorage.setItem('projects', data);
   }
 }

@@ -1,9 +1,22 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ProjectItemComponent } from './project-item/project-item.component';
 import { TasksService } from '../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Subject, takeUntil, timer } from 'rxjs';
+import { Project } from '../../../models/project.model';
 
 @Component({
   selector: 'app-project-list',
@@ -11,44 +24,62 @@ import { Subscription } from 'rxjs';
   imports: [
     ProjectItemComponent,
     CommonModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectListComponent implements OnInit, OnDestroy {
-  @ViewChild('form', { static: false }) projectForm!: NgForm;
-
-  projects: string[] = [];
-  newProject!: string;
+  destroy$ = new Subject<void>();
+  projects: Project[] = [];
   isInputValue: boolean = false;
 
-  projectsSub!: Subscription;
+  projectForm = new FormGroup({
+    name: new FormControl('', Validators.required),
+  });
 
-  constructor(private tasksService: TasksService) {}
+  constructor(
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.projects = this.tasksService.getProjects();
 
-    this.projectsSub = this.tasksService.updateProjectList$.subscribe(() => {
-      this.projects = this.tasksService.getProjects();
-    });
+    this.tasksService.updateProjectList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.projects = this.tasksService.getProjects();
+      });
   }
 
   onAddProject() {
-    const inputValue = this.projectForm.value.newProject?.trim();
+    const inputNameValue = this.projectForm.value.name;
 
-    if (inputValue) {
-      this.tasksService.addProject(inputValue);
+    if (inputNameValue) {
+      this.tasksService.addProject(inputNameValue);
     } else {
       this.isInputValue = true;
-      setTimeout(() => (this.isInputValue = false), 4000);
+      timer(4000).subscribe(() => {
+        this.isInputValue = false;
+        this.cdr.markForCheck();
+      });
     }
-
     this.projectForm.reset();
   }
 
+  onSelectProject(projectName: string) {
+    this.tasksService.getTasksForProject(projectName);
+  }
+
+  onDeteleProject(index: number) {
+    this.tasksService.deleteProject(index);
+  }
+
   ngOnDestroy(): void {
-    this.projectsSub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

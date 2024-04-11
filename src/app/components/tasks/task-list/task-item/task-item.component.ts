@@ -1,43 +1,47 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { Task } from '../../../../models/task.model';
 import { FormsModule } from '@angular/forms';
-import { TasksService } from '../../../../services/tasks.service';
 import { CommonModule } from '@angular/common';
-import { CompletedTaskDirective } from '../../../../directives/completed-task.directive';
 import { ShortenPipe } from '../../../../pipes/shorten.pipe';
-import { LinkPipe } from '../../../../pipes/link.pipe';
 
 @Component({
   selector: 'app-task-item',
   standalone: true,
-  imports: [
-    FormsModule,
-    CommonModule,
-    ShortenPipe,
-    CompletedTaskDirective,
-    LinkPipe
-  ],
+  imports: [FormsModule, CommonModule, ShortenPipe],
   templateUrl: './task-item.component.html',
   styleUrl: './task-item.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskItemComponent {
   @Input() task!: Task;
   @Input() index!: number;
   @Input() projectName!: string;
 
-  constructor(private tasksService: TasksService) {}
+  @Output() checkedTask = new EventEmitter<void>();
+  @Output() selectTask = new EventEmitter<{ task: Task; index: number }>();
+  @Output() deleteTask = new EventEmitter<{
+    projectName: string;
+    index: number;
+  }>();
+
+  constructor() {}
 
   onCheckedTask() {
-    this.tasksService.checkedTask();
+    this.checkedTask.emit();
   }
 
   onSelectTask() {
-    this.tasksService.getSelectedTask(this.task, this.index);
+    this.selectTask.emit({ task: this.task, index: this.index });
   }
 
   onDelete(event: Event) {
     event.preventDefault();
-    this.tasksService.deleteTask(this.projectName, this.index);
+    this.deleteTask.emit({ projectName: this.projectName, index: this.index });
   }
-
 }

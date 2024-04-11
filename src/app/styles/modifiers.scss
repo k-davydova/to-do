@@ -5,3 +5,8 @@ a:hover {
 .highlight {
   background-color: rgba($primary__color, 0.2);
 }
+
+.disabled {
+  opacity: 0.5;
+  text-decoration: line-through;
+}

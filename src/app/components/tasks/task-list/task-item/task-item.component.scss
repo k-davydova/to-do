@@ -19,10 +19,3 @@
   justify-content: space-between;
   align-items: center;
 }
-
-.task__title {
-  &.disabled {
-    opacity: 0.5;
-    text-decoration: line-through;
-  }
-}

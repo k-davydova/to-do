@@ -1,28 +1,32 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TaskItemComponent } from './task-item/task-item.component';
 import { TasksService } from '../../../services/tasks.service';
 import { Task } from '../../../models/task.model';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import {
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { Subject, takeUntil, timer } from 'rxjs';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [TaskItemComponent, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TaskItemComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss',
 })
 export class TaskListComponent implements OnInit, OnDestroy {
-  @ViewChild('form', { static: false }) taskInput!: NgForm;
-
+  destroy$ = new Subject<void>();
   newTask!: string;
-  isInputValue: boolean = false;
   tasks!: Task[];
   selectedProjectName!: string;
 
-  tasksSub!: Subscription;
-  selectedProjectNameSub!: Subscription;
+  isInputValue = false;
+
+  taskControl = new FormControl('', Validators.required);
 
   constructor(private tasksService: TasksService) {}
 
@@ -32,18 +36,21 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.selectedProjectName = storedProjectName ? storedProjectName : 'inbox';
     this.tasks = this.tasksService.getTasksForProject(this.selectedProjectName);
 
-    this.tasksSub = this.tasksService.selectedTaskList$.subscribe((task) => {
-      this.tasks = task;
-    });
+    this.tasksService.selectedTaskList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((task) => {
+        this.tasks = task;
+      });
 
-    this.selectedProjectNameSub =
-      this.tasksService.selectedProjectName$.subscribe((name) => {
+    this.tasksService.selectedProjectName$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((name) => {
         this.selectedProjectName = name;
       });
   }
 
   onAddTask() {
-    let inputValue = this.taskInput.value.newTask?.trim();
+    let inputValue = this.taskControl.value?.trim();
 
     if (inputValue) {
       const task = {
@@ -51,17 +58,31 @@ export class TaskListComponent implements OnInit, OnDestroy {
         description: '',
         isChecked: false,
       };
+
       this.tasksService.addTask(this.selectedProjectName, task);
     } else {
       this.isInputValue = true;
-      setTimeout(() => (this.isInputValue = false), 4000);
+
+      timer(4000).subscribe(() => (this.isInputValue = false));
     }
 
-    this.taskInput.reset();
+    this.taskControl.reset();
+  }
+
+  onCheckedTask() {
+    this.tasksService.checkedTask();
+  }
+
+  onSelectTask(event: { task: Task; index: number }) {
+    this.tasksService.getSelectedTask(event.task, event.index);
+  }
+
+  onDeleteTask(event: { projectName: string; index: number }) {
+    this.tasksService.deleteTask(event.projectName, event.index);
   }
 
   ngOnDestroy(): void {
-    this.tasksSub.unsubscribe();
-    this.selectedProjectNameSub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

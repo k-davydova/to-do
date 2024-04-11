@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { TasksService } from '../../../services/tasks.service';
 import { Task } from '../../../models/task.model';
 import {
@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ShortenPipe } from '../../../pipes/shorten.pipe';
 import { StartTaskDetailsComponent } from '../start-task-details/start-task-details.component';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil, timer } from 'rxjs';
 
 @Component({
   selector: 'app-task-details',
@@ -26,62 +26,66 @@ import { Subscription } from 'rxjs';
   styleUrl: './task-details.component.scss',
 })
 export class TaskDetailsComponent implements OnInit, OnDestroy {
+  destroy$ = new Subject<void>();
+
   task!: Task;
-  taskForm!: FormGroup;
   index!: number;
   projectName!: string;
-  isSelected!: boolean;
   projects!: string[];
-  isSent: boolean = false;
 
-  taskSub!: Subscription;
-  indexSub!: Subscription;
-  projectNameSub!: Subscription;
-  isSelectedSub!: Subscription;
+  isSelected = false;
+  isSent = false;
 
-  constructor(private tasksService: TasksService) {}
+  taskForm = new FormGroup({
+    title: new FormControl(''),
+    description: new FormControl(''),
+    project: new FormControl(),
+  });
+
+  constructor(
+    private tasksService: TasksService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    // this.projects = this.tasksService.getProjects();
-
     const storedProjectName = localStorage.getItem('selectedProjectName');
     this.projectName = storedProjectName ? storedProjectName : 'inbox';
 
-    this.taskForm = new FormGroup({
-      title: new FormControl(''),
-      description: new FormControl(''),
-      project: new FormControl([]),
-    });
+    this.tasksService.selectedTask$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((task) => {
+        this.task = task;
 
-    this.taskSub = this.tasksService.selectedTask$.subscribe((task) => {
-      this.task = task;
-
-      this.taskForm.patchValue({
-        title: task.title,
-        description: task.description,
-        project: this.projectName,
+        this.taskForm.patchValue({
+          title: task.title,
+          description: task.description,
+          project: this.projectName,
+        });
       });
-    });
 
-    this.tasksService.projectList$.subscribe((projects) => {
-      this.projects = projects;
-    });
+    this.tasksService.projectList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((projects) => {
+        this.projects = projects;
+      });
 
-    this.indexSub = this.tasksService.selectedTaskIndex$.subscribe((index) => {
-      this.index = index;
-    });
+    this.tasksService.selectedTaskIndex$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((index) => {
+        this.index = index;
+      });
 
-    this.projectNameSub = this.tasksService.selectedProjectName$.subscribe(
-      (projectName) => {
+    this.tasksService.selectedProjectName$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((projectName) => {
         this.projectName = projectName;
-      }
-    );
+      });
 
-    this.isSelectedSub = this.tasksService.isTaskSelected$.subscribe(
-      (isSelected) => {
+    this.tasksService.isTaskSelected$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isSelected) => {
         this.isSelected = isSelected;
-      }
-    );
+      });
   }
 
   onSubmit() {
@@ -90,8 +94,8 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     const project = this.taskForm.value.project;
 
     const updatedTask = {
-      title: title,
-      description: description,
+      title: title || '',
+      description: description || '',
       isChecked: this.task.isChecked,
     };
 
@@ -103,13 +107,12 @@ export class TaskDetailsComponent implements OnInit, OnDestroy {
     );
 
     this.isSent = true;
-    setTimeout(() => (this.isSent = false), 4000);
+
+    timer(4000).subscribe(() => (this.isSent = false));
   }
 
   ngOnDestroy(): void {
-    this.taskSub.unsubscribe();
-    this.indexSub.unsubscribe();
-    this.projectNameSub.unsubscribe();
-    this.isSelectedSub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

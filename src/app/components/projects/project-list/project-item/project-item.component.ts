@@ -1,7 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { TasksService } from '../../../../services/tasks.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ShortenPipe } from '../../../../pipes/shorten.pipe';
+import { Project } from '../../../../models/project.model';
 
 @Component({
   selector: 'app-project-item',
@@ -9,20 +15,23 @@ import { ShortenPipe } from '../../../../pipes/shorten.pipe';
   imports: [CommonModule, ShortenPipe],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectItemComponent {
-  @Input() projectName!: string;
+  @Input() project!: Project;
   @Input() index!: number;
+  @Output() selectProject = new EventEmitter<string>();
+  @Output() deteteProject = new EventEmitter<number>();
 
-  constructor(private tasksService: TasksService) {}
+  constructor() {}
 
   onSelectProject() {
-    this.tasksService.getTasksForProject(this.projectName);
+    this.selectProject.emit(this.project.name);
   }
 
   onDelete(event: Event) {
     event.stopPropagation();
 
-    this.tasksService.deleteProject(this.index);
+    this.deteteProject.emit(this.index);
   }
 }

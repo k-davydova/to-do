@@ -6,9 +6,9 @@
           <input type="text" [value]="task.title | shorten : 25" formControlName="title" />
           <select class="project__selector" formControlName="project">
             @for (project of projects; track project) {
-            <option [value]="project" [selected]="project === projectName">
-              {{ project | uppercase }}
-            </option>
+              <option [value]="project" [selected]="project === projectName">
+                {{ project | uppercase }}
+              </option>
             }
           </select>
         </div>
@@ -24,9 +24,9 @@
       </div>
       <div class="form__container">
         @if (taskForm.dirty) {
-        <button class="btn btn-save" [ngClass]="{ 'btn-success': isSent }">
-          Save
-        </button>
+          <button class="btn btn-save" [class.btn-success]="isSent">
+            Save
+          </button>
         }
       </div>
     </form>
